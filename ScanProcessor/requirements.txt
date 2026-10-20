@@ -1,0 +1,6 @@
+pymupdf
+opencv-python-headless
+numpy
+pillow
+pyside6
+ocrmypdf

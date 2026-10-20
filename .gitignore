@@ -1,0 +1,30 @@
+# Whitelist: ignore everything at the top level, then allow only what belongs in the repo.
+# (Keeps Plustek's own software, local test scripts, scans and deployment folders out by default.)
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/LICENSE
+!/docs/
+!/.github/
+!/S30ButtonBridge/
+!/ScanKiosk/
+!/ScanProcessor/
+
+# build output and local environments inside the allowed folders
+bin/
+obj/
+publish/
+.venv/
+__pycache__/
+*.pyc
+*.user
+.vs/
+
+# local configs (examples are committed as *.example.json)
+S30ButtonBridge.json
+ScanKiosk.json
+
+# backups written by Fix-S30Standby.ps1 (machine-specific)
+*.reg
+*.bak

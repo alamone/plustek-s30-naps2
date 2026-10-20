@@ -1,0 +1,13 @@
+{
+  // Copy to ScanKiosk.json next to ScanKiosk.exe. Every setting is optional.
+  // Tiles: leave out to show every NAPS2 profile for the S30, in NAPS2's order.
+  "Tiles": [
+    { "Profile": "Plustek S30 (300 DPI 95Q)", "Label": "Everyday", "Description": "300 DPI · color · duplex" },
+    { "Profile": "Plustek S30 (600DPI 95Q)", "Label": "Fine detail", "Description": "600 DPI · color · duplex" },
+    { "Profile": "Plustek S30 (Lossless 600DPI)", "Label": "Archival", "Description": "600 DPI · lossless (large files)" }
+  ],
+  "DefaultOutputPattern": "%USERPROFILE%\\Documents\\Scans\\$(YYYY)-$(MM)-$(DD)_$(nnn).pdf",
+  "FullScreen": true,
+  "AutoReturnSeconds": 20,
+  "ScannerStandbyMinutes": 0
+}

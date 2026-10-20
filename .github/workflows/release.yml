@@ -1,0 +1,59 @@
+name: release
+
+# Builds self-contained Windows downloads and attaches them to a GitHub Release when a v* tag is pushed.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish S30ButtonBridge
+        run: >
+          dotnet publish S30ButtonBridge/S30ButtonBridge.csproj -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:DebugType=none
+          -o out/S30ButtonBridge
+
+      - name: Publish ScanKiosk
+        run: >
+          dotnet publish ScanKiosk/ScanKiosk.csproj -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=none
+          -o out/ScanKiosk
+
+      - name: Package
+        shell: pwsh
+        run: |
+          # Docnet.Core ships PDFium's licence as "LICENSE"; keep it (required for redistribution) under its own name
+          if (Test-Path out/ScanKiosk/LICENSE) { Rename-Item out/ScanKiosk/LICENSE THIRD-PARTY-NOTICES-PDFium.txt }
+          Copy-Item S30ButtonBridge/Fix-S30Standby.ps1, S30ButtonBridge/README.md, S30ButtonBridge/S30ButtonBridge.example.json, LICENSE out/S30ButtonBridge/
+          Copy-Item S30ButtonBridge/Fix-S30Standby.ps1, ScanKiosk/README.md, ScanKiosk/ScanKiosk.example.json, docs/KIOSK.md, LICENSE out/ScanKiosk/
+          Compress-Archive out/S30ButtonBridge/* S30ButtonBridge-win-x64.zip
+          Compress-Archive out/ScanKiosk/* ScanKiosk-win-x64.zip
+          Compress-Archive ScanProcessor/scanproc, ScanProcessor/ScanProcessor.pyw, ScanProcessor/requirements.txt, ScanProcessor/README.md, LICENSE ScanProcessor.zip
+
+      - uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            S30ButtonBridge-win-x64.zip
+            ScanKiosk-win-x64.zip
+            ScanProcessor.zip
+          generate_release_notes: true
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          name: downloads
+          path: '*.zip'
